@@ -24,8 +24,9 @@ htmlcov/
 .DS_Store
 Thumbs.db
 
-# Chroma
+# Chroma / local vector database
 chroma_data/
+data/chroma/
 
 # Logs
 *.log
