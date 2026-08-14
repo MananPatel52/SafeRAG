@@ -35,44 +35,71 @@ flowchart TD
 ```
 
 
+------------------------------------------------------------------------------------------------
+
 
 End-to-end pipeline:
 
 User Query
-    ↓
+
+↓
+    
 Metadata-aware Retrieval
-    ↓
+
+↓
+    
 Conflict Detection
-    ↓
+
+↓
+    
 Temporal Resolution
-    ↓
+
+↓
+    
 Grounded Context
-    ↓
+
+↓
+    
 Gemini Generation
-    ↓
+
+↓
+    
 Answer + Sources
 
 
+----------------------------------------------------------------------------------------------------------------
 
 
-Key Features
+
+Key Features:
 Document Ingestion
 
 PDF documents are processed through:
 
 PDF
+
  ↓
+ 
 Loading
+
  ↓
+ 
 Metadata Enrichment
+
  ↓
+ 
 Chunking
+
  ↓
+ 
 Embeddings
+
  ↓
+ 
 Chroma
 
 
+--------------------------------------------------------------------------------------------------------
 
 
 Document metadata includes:
@@ -90,21 +117,30 @@ Department
 Document type
 
 
+-----------------------------------------------------------------------------------------------------------------------
 
 
-Semantic Retrieval
+Semantic Retrieval:
 
-Embeddings:
 
-BAAI/bge-small-en-v1.5
+Embeddings: BAAI/bge-small-en-v1.5
+
+
 
 
 
 Retrieval uses Maximum Marginal Relevance (MMR):
 
 Top K      = 5
+
 Fetch K    = 20
+
 MMR Lambda = 0.7
+
+
+
+
+
 
 Optional metadata filters:
 
@@ -114,6 +150,9 @@ Conflict Detection
 
 Documents are grouped by policy category and checked for multiple versions.
 If conflicting versions are retrieved, SafeRAG identifies the conflict before generation.
+
+
+-----------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -129,6 +168,8 @@ and:
 "What was the pharmacy dispensing target in January 2026?"
 
 
+------------------------------------------------------------------------------------------------------------------------
+
 
 Grounded Generation:
 Gemini is instructed to answer using only the retrieved and resolved context.
@@ -137,9 +178,13 @@ Gemini is instructed to answer using only the retrieved and resolved context.
 The generator is explicitly instructed not to:
 
 Use outside knowledge
+
 Invent facts
+
 Invent dates
+
 Invent policies
+
 Invent sources
 
 
@@ -147,7 +192,7 @@ If the context is insufficient:
 I couldn't find sufficient information in the provided documents.
 
 
-
+----------------------------------------------------------------------------------------------------------------------
 
 Tech Stack:
 
@@ -174,6 +219,7 @@ Health Check
 GET /health
 
 
+-----------------------------------------------------------------------------------------
 
 
 Example:
@@ -184,6 +230,7 @@ Example:
   "environment": "development"
 }
 
+----------------------------------------------------------------------------------------------
 
 Query:
 
@@ -191,22 +238,29 @@ POST /query
 Content-Type: application/json
 
 
+----------------------------------------------------------------------------------------------
 
 
 Example request:
 
 {
+
   "question": "What is the current pharmacy dispensing target?",
+  
   "department": "pharmacy"
+  
 }
 
 
+----------------------------------------------------------------------------------------------------
 
 
 Example response:
 
 {
+
   "answer": "The current pharmacy dispensing target is 20 minutes.",
+  
   "sources": [
     {
       "document_id": "PHARM-2026-03",
@@ -219,59 +273,27 @@ Example response:
 }
 
 
+-------------------------------------------------------------------------------------------------
 
 
 FastAPI also provides interactive API documentation at:
+
 http://localhost:8000/docs
 
 
 
-
-Project Structure:
-
-SafeRAG/
-│
-├── app/
-│   ├── api/
-│   │   └── main.py
-│   ├── config/
-│   │   └── settings.py
-│   ├── ingestion/
-│   │   ├── chunker.py
-│   │   ├── metadata.py
-│   │   └── pipeline.py
-│   ├── models/
-│   │   └── schemas.py
-│   ├── reasoning/
-│   │   ├── conflict.py
-│   │   ├── generator.py
-│   │   ├── rag_pipeline.py
-│   │   └── temporal.py
-│   └── retrieval/
-│       ├── embeddings.py
-│       ├── indexer.py
-│       ├── retriever.py
-│       └── vector_store.py
-│
-├── data/
-│   └── raw/
-├── scripts/
-├── tests/
-├── Dockerfile
-├── docker-compose.yml
-├── requirements.txt
-├── .env.example
-└── README.md
-
-
+-------------------------------------------------------------------------------------------------------------
 
 
 Running Locally:
 1. Clone
 
 git clone https://github.com/MananPatel52/SafeRAG.git
+
 cd SafeRAG
 
+
+-------------------------------------------------------------------------------------------------------------
 
 
 2. Create virtual environment:
@@ -279,64 +301,94 @@ cd SafeRAG
 Windows:
 
 python -m venv .venv
+
 .venv\Scripts\Activate.ps1
 
+-------------------------------------------------------------------------------------------------------------
 
 3. Install dependencies:
+   
 pip install -r requirements.txt
 
+---------------------------------------------------------------------------------------------------------------
 
 4. Configure Gemini:
+   
 Create .env:
+
 GEMINI_API_KEY=your_api_key_here
+
 The .env file is excluded from Git.
 
+---------------------------------------------------------------------------------------------------------------
 
-5. Index documents
+5. Index documents:
+   
 python scripts/index_documents.py
 
+--------------------------------------------------------------------------------------------------------------
 
-6. Start API
+6. Start API:
+   
 uvicorn app.api.main:app --reload --port 8000
 
+--------------------------------------------------------------------------------------------------------------
 
 API:
+
 http://localhost:8000
 
 
+--------------------------------------------------------------------------------------------------------------
 
 
 Running with Docker:
 
 Build and start:
+
 docker compose up --build
 
 
+-------------------------------------------------------------------------------------------------------------------
+
+
 Check the service:
+
 docker compose ps
+
+
+-------------------------------------------------------------------------------------------------------------------
 
 
 View logs:
 docker compose logs --tail=50 saferag
 
+--------------------------------------------------------------------------------------------------------------------
+
 
 Stop:
 docker compose down
 
+---------------------------------------------------------------------------------------------------------------------
 
 
 Chroma persistence is configured through:
 
 volumes:
+
   - ./chroma_data:/app/chroma_data
 
-
+--------------------------------------------------------------------------------------------------------------------
 
 
 Testing:
 
 Run the complete test suite:
+
 python -m pytest -v
+
+
+-------------------------------------------------------------------------------------------------------------------
 
 
 Current result:
@@ -346,17 +398,21 @@ Tests cover ingestion, dataset handling, API behavior, and core RAG functionalit
 
 
 
+-------------------------------------------------------------------------------------------------------------------
+
 
 
 
 Example:
 
 Historical Query
+
 What was the pharmacy dispensing target in January 2026?
 
 SafeRAG retrieves the January policy rather than automatically returning the latest policy.
 
 Current Query
+
 What is the current pharmacy dispensing target?
 
 SafeRAG identifies the latest applicable policy and generates a grounded answer.
