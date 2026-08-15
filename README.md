@@ -394,6 +394,10 @@ python -m pytest -v
 Current result:
 30 test passed in 70.70 seconds
 
+Test breakdown:
+- 22 unit tests
+- 8 integration tests
+
 Tests cover ingestion, metadata handling, retrieval, conflict detection, temporal resolution, grounded generation, API behavior, and error handling.
 
 
