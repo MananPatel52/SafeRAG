@@ -392,9 +392,9 @@ python -m pytest -v
 
 
 Current result:
-13 passed
+30 test passed in 70.70 seconds
 
-Tests cover ingestion, dataset handling, API behavior, and core RAG functionality.
+Tests cover ingestion, metadata handling, retrieval, conflict detection, temporal resolution, grounded generation, API behavior, and error handling.
 
 
 
