@@ -1,0 +1,70 @@
+[
+  {
+    "id": "current_pharmacy",
+    "question": "What is the current pharmacy dispensing target?",
+    "department": "pharmacy",
+    "expected_answer_contains": ["20 minutes"],
+    "expected_source_ids": ["PHARM-2026-03"],
+    "should_refuse": false
+  },
+  {
+    "id": "historical_pharmacy",
+    "question": "What was the pharmacy dispensing target in January 2026?",
+    "department": "pharmacy",
+    "expected_answer_contains": ["30 minutes"],
+    "expected_source_ids": ["PHARM-2026-01"],
+    "should_refuse": false
+  },
+  {
+    "id": "current_pharmacy_repeat",
+    "question": "What is the current pharmacy dispensing target?",
+    "department": "pharmacy",
+    "expected_answer_contains": ["20 minutes"],
+    "expected_source_ids": ["PHARM-2026-03"],
+    "should_refuse": false
+  },
+  {
+    "id": "historical_pharmacy_repeat",
+    "question": "What was the pharmacy dispensing target in January 2026?",
+    "department": "pharmacy",
+    "expected_answer_contains": ["30 minutes"],
+    "expected_source_ids": ["PHARM-2026-01"],
+    "should_refuse": false
+  },
+  {
+    "id": "unsupported_hr_policy",
+    "question": "What is the hospital's policy for employee vacation leave?",
+    "department": "hr",
+    "expected_answer_contains": [
+      "I couldn't find sufficient information in the provided documents."
+    ],
+    "expected_source_ids": [],
+    "should_refuse": true
+  },
+  {
+    "id": "unsupported_hr_policy_repeat",
+    "question": "What is the hospital's policy for employee vacation leave?",
+    "department": "hr",
+    "expected_answer_contains": [
+      "I couldn't find sufficient information in the provided documents."
+    ],
+    "expected_source_ids": [],
+    "should_refuse": true
+  },
+  {
+    "id": "pharmacy_answer_structure",
+    "question": "What is the current pharmacy dispensing target?",
+    "department": "pharmacy",
+    "expected_answer_contains": ["20 minutes"],
+    "expected_source_ids": ["PHARM-2026-03"],
+    "should_refuse": false
+  },
+  {
+    "id": "historical_answer_structure",
+    "question": "What was the pharmacy dispensing target in January 2026?",
+    "department": "pharmacy",
+    "expected_answer_contains": ["30 minutes"],
+    "expected_source_ids": ["PHARM-2026-01"],
+    "should_refuse": false
+  }
+]
