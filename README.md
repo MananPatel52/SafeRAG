@@ -383,7 +383,16 @@ volumes:
 
 Testing:
 
-The project includes both unit and integration tests.
+The project includes both unit and integration tests covering:
+
+- Document ingestion and metadata handling
+- Dataset loading
+- Semantic and metadata-aware retrieval
+- Conflict detection
+- Temporal policy resolution
+- Grounded Gemini generation
+- API validation and end-to-end query behavior
+- Prompt-injection security rules
 
 Run the complete test suite:
 
@@ -394,7 +403,7 @@ python -m pytest -v
 
 
 Current result:
-35 tests passed in 71.80 seconds
+35 tests passed in 23.44 seconds
 
 Test breakdown:
 - 27 unit tests
@@ -416,6 +425,28 @@ Run:
 ```bash
 python -m evaluation.evaluate
 ```
+
+
+SafeRAG includes a lightweight evaluation framework to measure answer quality,
+retrieval quality, refusal behavior, citation correctness, and latency.
+
+The evaluation dataset contains 8 representative cases covering:
+
+- Current policy questions
+- Historical policy questions
+- Repeated queries
+- Unsupported questions
+- Answer structure
+
+The evaluation reports:
+
+- Faithfulness
+- Context precision
+- Correct refusal rate
+- Citation accuracy
+- P50 latency
+- P95 latency
+
 
 Current evaluation result:
 
@@ -448,6 +479,60 @@ evaluation/
 -----------------------------------------------------------------------------------------------------------------------------------
 
 
+```markdown
+## Observability
+
+SafeRAG implements lightweight structured observability without introducing
+a large external monitoring stack.
+
+The pipeline records latency for the major stages of a query:
+
+1. Retrieval
+2. Conflict detection
+3. Temporal resolution
+4. Grounded generation
+5. Total query execution
+
+Example events:
+```
+
+```text
+retrieval_completed
+conflict_detection_completed
+temporal_resolution_completed
+generation_completed
+query_completed
+```
+
+Each event records relevant metadata such as:
+
+- Execution latency
+- Number of documents retrieved
+- Number of documents used as context
+- Whether a conflict was detected
+- Resolved document ID
+- Gemini model used
+- Prompt token count
+- Output token count
+- Total token count
+
+
+```text
+Example:
+
+{
+  "event": "generation_completed",
+  "latency_ms": 8392.36,
+  "model": "gemini-3.5-flash",
+  "prompt_tokens": 580,
+  "output_tokens": 11,
+  "total_tokens": 872
+}
+```
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+
 
 Example:
 
@@ -462,3 +547,136 @@ Current Query
 What is the current pharmacy dispensing target?
 
 SafeRAG identifies the latest applicable policy and generates a grounded answer.
+
+
+--------------------------------------------------------------------------------------------------------------------
+
+
+## Technology Trade-offs
+
+### ChromaDB vs Traditional SQL Database
+
+ChromaDB was selected because SafeRAG requires semantic vector search and
+metadata-aware retrieval. It provides a simple local vector database with
+support for similarity search and metadata filtering.
+
+A traditional SQL database would be stronger for transactional workloads,
+but would require an additional vector-search layer for semantic retrieval.
+
+**Trade-off:** Simplicity and fast prototyping over transactional/database
+features.
+
+### BAAI/bge-small-en-v1.5 vs Larger Embedding Models
+
+The `BAAI/bge-small-en-v1.5` embedding model was selected because it provides
+a good balance between semantic retrieval quality, model size, and local
+execution cost.
+
+A larger embedding model could potentially improve retrieval quality but
+would increase memory usage and inference cost.
+
+**Trade-off:** Retrieval quality vs resource efficiency.
+
+### MMR vs Pure Similarity Search
+
+SafeRAG uses Maximum Marginal Relevance (MMR) retrieval rather than relying
+only on the highest similarity scores.
+
+MMR helps reduce redundant chunks and provides more diverse retrieved
+context.
+
+**Trade-off:** Slightly more retrieval complexity in exchange for more
+diverse context.
+
+### Gemini Flash vs Larger LLMs
+
+Gemini Flash was selected as the generation model because the application
+prioritizes low latency and cost efficiency while still requiring reliable
+grounded generation.
+
+A larger model could potentially improve reasoning quality but would increase
+latency and token cost.
+
+**Trade-off:** Latency and cost vs maximum model capability.
+
+### Custom Observability vs Full Monitoring Stack
+
+Instead of introducing a large observability platform, SafeRAG uses lightweight
+structured logging to record pipeline timings and Gemini token usage.
+
+This keeps the project simple while still making the major performance
+bottlenecks measurable.
+
+**Trade-off:** Simplicity vs advanced monitoring, dashboards, and distributed
+tracing.
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+## Cost & Token Breakdown
+
+SafeRAG records Gemini token usage for each generation request whenever the
+API provides usage metadata.
+
+Tracked metrics include:
+
+- Prompt tokens
+- Output tokens
+- Total tokens
+- Generation latency
+
+Example observed generation:
+
+| Metric | Value |
+|---|---:|
+| Prompt tokens | 580 |
+| Output tokens | 11 |
+| API-reported total tokens | 872 |
+| Generation latency | 8392.36 ms |
+
+The application does not hard-code a cost into the pipeline because API
+pricing can change. Cost can be calculated from the recorded token usage
+using the active Gemini model's pricing.
+
+For example:
+
+`Estimated Cost = (Input Tokens × Input Price / 1M) +
+                  (Output Tokens × Output Price / 1M)`
+
+The current implementation therefore focuses on making token consumption
+observable rather than coupling application logic to a specific pricing
+table.
+
+
+------------------------------------------------------------------------------------------------------------------
+
+
+## Known Limitations
+
+- The evaluation dataset is currently small, with 8 representative cases,
+  and is not large enough to establish production-level statistical
+  confidence.
+
+- Context precision is currently 0.375, indicating that retrieval can still
+  return unnecessary context.
+
+- Query latency can be relatively high because embedding/retrieval and
+  remote LLM generation are performed during the request.
+
+- The current observability implementation uses application logs rather than
+  a full metrics, tracing, or dashboarding platform.
+
+- Token usage is logged when Gemini exposes usage metadata, so token metrics
+  depend on the information returned by the API.
+
+- Temporal resolution currently focuses on month/year references and may not
+  cover every possible natural-language date expression.
+
+- The system is designed around the supplied document corpus and does not
+  automatically verify information against external sources.
+
+- The evaluation currently measures a small controlled dataset rather than
+  continuous production traffic.
