@@ -1,6 +1,14 @@
+import time
+
 from google import genai
 
 from app.config.settings import settings
+from app.observability.logger import log_event
+
+
+
+
+
 
 
 class GeminiGenerator:
@@ -85,9 +93,54 @@ END UNTRUSTED DOCUMENT CONTEXT
 ANSWER:
 """
 
+        generation_start = time.perf_counter()
+
         response = self.client.models.generate_content(
             model=settings.gemini_model,
             contents=prompt,
+        )
+
+        generation_latency_ms = (
+            time.perf_counter() - generation_start
+        ) * 1000
+
+
+        usage = getattr(
+            response,
+            "usage_metadata",
+            None,
+        )
+
+        prompt_tokens = getattr(
+            usage,
+            "prompt_token_count",
+            None,
+        )
+
+        output_tokens = getattr(
+            usage,
+            "candidates_token_count",
+            None,
+        )
+
+        total_tokens = getattr(
+            usage,
+            "total_token_count",
+            None,
+        )
+
+
+
+        log_event(
+            "generation_completed",
+            latency_ms=round(
+                generation_latency_ms,
+                2,
+            ),
+            model=settings.gemini_model,
+            prompt_tokens=prompt_tokens,
+            output_tokens=output_tokens,
+            total_tokens=total_tokens,
         )
 
         return response.text.strip()
