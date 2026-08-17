@@ -383,6 +383,8 @@ volumes:
 
 Testing:
 
+The project includes both unit and integration tests.
+
 Run the complete test suite:
 
 python -m pytest -v
@@ -392,10 +394,10 @@ python -m pytest -v
 
 
 Current result:
-30 test passed in 70.70 seconds
+35 tests passed in 71.80 seconds
 
 Test breakdown:
-- 22 unit tests
+- 27 unit tests
 - 8 integration tests
 
 Tests cover ingestion, metadata handling, retrieval, conflict detection, temporal resolution, grounded generation, API behavior, and error handling.
@@ -404,6 +406,46 @@ Tests cover ingestion, metadata handling, retrieval, conflict detection, tempora
 
 -------------------------------------------------------------------------------------------------------------------
 
+
+### Evaluation
+
+The project includes a reproducible evaluation harness.
+
+Run:
+
+```bash
+python -m evaluation.evaluate
+```
+
+Current evaluation result:
+
+| Metric               |      Result |
+| -------------------- | ----------: |
+| Faithfulness         |        1.00 |
+| Context Precision    |       0.375 |
+| Correct Refusal Rate |        1.00 |
+| Citation Accuracy    |        1.00 |
+| P50 Latency          |  9275.44 ms |
+| P95 Latency          | 14502.34 ms |
+
+
+The evaluation uses deterministic, reproducible heuristics. Faithfulness is measured using expected-claim matching rather than an LLM-as-a-judge approach.
+
+Latency measurements represent the real end-to-end pipeline, including retrieval, reasoning, and Gemini generation.
+
+
+
+### 3. Evaluation files
+
+```markdown
+evaluation/
+├── eval_dataset.json
+├── evaluate.py
+└── evaluation_results.json
+```
+
+
+-----------------------------------------------------------------------------------------------------------------------------------
 
 
 
